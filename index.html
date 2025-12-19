@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #1c1c1c; color: white; margin: 0; padding: 15px; }
+        .header { text-align: center; padding: 20px 0; color: #00d2ff; }
+        .card { background: #2b2b2b; border-radius: 20px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.3); border: 1px solid #3d3d3d; }
+        .card h3 { margin: 0 0 10px 0; font-size: 22px; }
+        .price { font-size: 18px; color: #00ff88; font-weight: bold; }
+        .flavors { margin: 10px 0; font-size: 14px; color: #bbb; }
+        .buy-btn { width: 100%; background: linear-gradient(90deg, #00d2ff 0%, #3a7bd5 100%); color: white; border: none; padding: 12px; border-radius: 12px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .buy-btn:active { transform: scale(0.98); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>VAPE SHOP 💨</h1>
+        <p>Выберите устройство</p>
+    </div>
+
+    <div class="card">
+        <h3>Vaka 20.000</h3>
+        <div class="flavors">Виноград, Манго, Арбуз</div>
+        <div class="price">15 000 ₸</div>
+        <button class="buy-btn" onclick="sendOrder('Vaka 20k', 15000)">Выбрать</button>
+    </div>
+
+    <div class="card">
+        <h3>Vaka 30.000</h3>
+        <div class="flavors">Черника, Кола, Лёд</div>
+        <div class="price">19 000 ₸</div>
+        <button class="buy-btn" onclick="sendOrder('Vaka 30k', 19000)">Выбрать</button>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function sendOrder(item, price) {
+            let data = {
+                product: item,
+                amount: price
+            };
+            tg.sendData(JSON.stringify(data)); // Отправляет данные боту
+            tg.close();
+        }
+    </script>
+</body>
+</html>
