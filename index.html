@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --card-bg: rgba(45, 45, 45, 0.8);
+            --text-main: #ffffff;
+            --text-dim: #b3b3b3;
+            --accent: #4fc3f7;
+            --accent-dim: rgba(79, 195, 247, 0.2);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0; padding: 15px;
+            padding-bottom: 100px;
+        }
+
+        /* Поиск и Фильтры */
+        .search-box {
+            position: sticky; top: 0; z-index: 10;
+            background: var(--bg-color); padding: 10px 0;
+        }
+        #search-input {
+            width: 100%; padding: 12px; border-radius: 12px;
+            border: 1px solid var(--accent-dim);
+            background: var(--card-bg); color: white; outline: none;
+            box-sizing: border-box;
+        }
+
+        .tabs {
+            display: flex; gap: 10px; margin: 15px 0;
+        }
+        .tab {
+            flex: 1; padding: 10px; text-align: center;
+            background: var(--card-bg); border-radius: 10px;
+            cursor: pointer; transition: 0.3s; font-weight: bold;
+        }
+        .tab.active { background: var(--accent); color: #000; }
+
+        /* Карточки товаров */
+        .product-card {
+            background: var(--card-bg); border-radius: 15px;
+            padding: 15px; margin-bottom: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            animation: fadeIn 0.4s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .product-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .price { color: var(--accent); font-weight: bold; font-size: 1.1em; }
+
+        .specs {
+            background: rgba(0,0,0,0.2); padding: 10px;
+            border-radius: 8px; margin: 10px 0; font-size: 0.85em; color: var(--text-dim);
+        }
+
+        .flavors-grid {
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 10px;
+        }
+        .flavor-btn {
+            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-main); padding: 8px; border-radius: 8px;
+            font-size: 0.8em; cursor: pointer; transition: 0.2s;
+        }
+        .flavor-btn:active { background: var(--accent); color: black; }
+        .flavor-btn.selected { border-color: var(--accent); background: var(--accent-dim); }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="search-box">
+    <input type="text" id="search-input" placeholder="Поиск по названию или вкусу...">
+</div>
+
+<div class="tabs">
+    <div class="tab active" onclick="switchTab('WAKA')">WAKA</div>
+    <div class="tab" onclick="switchTab('ELFBAR')">ELFBAR</div>
+</div>
+
+<div id="catalog"></div>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    let currentTab = 'WAKA';
+    let cart = [];
+
+    const products = [
+        {
+            brand: 'WAKA',
+            name: 'WAKA PA28000',
+            price: 18000,
+            specs: '28 000 затяжек, 11-14% никотина, с подзарядкой',
+            flavors: ['Малина кола 🥤', 'Голубика малина 🥶', 'Арбуз вишня 🍉🍒', 'Голубика клюква вишня 🥶🫀', 'Киви маракуя гуава 🥝🍈', 'Клубника арбуз 🍓🍉', 'Клубника малина 🍓', 'Сакура виноград 🌸🍇']
+        },
+        {
+            brand: 'WAKA',
+            name: 'WAKA XLAND SPIKE 35000',
+            price: 19000,
+            specs: '35 000 затяжек, 11-14% никотина, с подзарядкой',
+            flavors: ['Ежевика черника малина 🫐', 'Клюква лимон ❤️😖', 'Кислое яблоко и карамель 🍏🍭', 'Тройная Ягода 🍓🫐', 'Лимонная ледяная кола 🍋🥤', 'Мята 🌿', 'Ледяная Мокко ❄️☕']
+        },
+        {
+            brand: 'ELFBAR',
+            name: 'ELFBAR GH23000',
+            price: 12500,
+            specs: '23 000 затяжек, 5-7% никотина, с подзарядкой',
+            flavors: ['Полярная мята ❄️', 'Слива кислый лайм 🫐🍋', 'Голубика малина лед 🫐❄️', 'Клубника банан 🍓🍌', 'Фиолетовая мята ❄️', 'Клубника арбуз жвачка 🍓🍉', 'Кислый арбуз конфеты 🍉🍬', 'Малина арбуз лимон 😑🍉', 'Зеленое яблоко лёд 🍏❄️', 'Арбуз лед 🍉❄️', 'Арбуз вишня 🍉🍒', 'Виноград лед 🍇❄️', 'Вишня кола 🍒🥤', 'Яблоко груша 🍏🍐', 'Жасмин малина 🌹']
+        },
+        {
+            brand: 'ELFBAR',
+            name: 'ELFBAR COMBO 20000',
+            price: 12000,
+            specs: '20 000 затяжек, 6-8% никотина, с подзарядкой',
+            flavors: ['Розовый лимонад грейпфрут 🍹', 'Виноград энергетик 🍇⚡', 'Яблоко сочный персик 🍏🍑', 'Черная смородина малина 🫐', 'Виноград 🍇', 'Персик манго арбуз 🍑🥭🍉', 'Зеленый виноград 🍇', 'Клубника арбуз 🍓🍉', 'Лайм ананас 🍋🍍', 'Двойное яблоко 🍏', 'Голубика кислая малина вишня 🫐🍒']
+        }
+    ];
+
+    function render() {
+        const container = document.getElementById('catalog');
+        const search = document.getElementById('search-input').value.toLowerCase();
+        container.innerHTML = '';
+
+        products.filter(p => p.brand === currentTab).forEach(p => {
+            const matchesSearch = p.name.toLowerCase().includes(search) ||
+                                p.flavors.some(f => f.toLowerCase().includes(search));
+
+            if (!matchesSearch) return;
+
+            const card = document.createElement('div');
+            card.className = 'product-card';
+            card.innerHTML = `
+                <div class="product-header">
+                    <div><strong>${p.name}</strong></div>
+                    <div class="price">${p.price} ₸</div>
+                </div>
+                <div class="specs">${p.specs}</div>
+                <div class="flavors-grid">
+                    ${p.flavors.map(f => `<button class="flavor-btn" onclick="addToCart('${p.name}', '${f}', ${p.price})">${f}</button>`).join('')}
+                </div>
+            `;
+            container.appendChild(card);
+        });
+    }
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.innerText === tab));
+        render();
+    }
+
+    function addToCart(model, flavor, price) {
+        cart.push({ model, flavor, price });
+        tg.MainButton.setText(`Оформить: ${cart.length} шт. (${cart.reduce((s,i)=>s+i.price, 0)} ₸)`);
+        tg.MainButton.show();
+    }
+
+    tg.onEvent('mainButtonClicked', () => {
+        tg.sendData(JSON.stringify({
+            items: cart,
+            total: cart.reduce((s,i)=>s+i.price, 0)
+        }));
+        tg.close();
+    });
+
+    document.getElementById('search-input').addEventListener('input', render);
+    render();
+</script>
+</body>
+</html>
