@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Crypto Clicker</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background: radial-gradient(circle, #1e1e2f, #121212);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            user-select: none;
+        }
+        #score { font-size: 56px; font-weight: 800; color: #ffca28; text-shadow: 0 0 20px rgba(255,202,40,0.5); }
+        #energy-bar { width: 200px; height: 10px; background: #333; border-radius: 5px; margin-top: 10px; }
+        #energy-fill { width: 100%; height: 100%; background: #4caf50; border-radius: 5px; transition: width 0.2s; }
+        #click-obj {
+            width: 220px;
+            height: 220px;
+            background: #ffca28;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            margin: 40px 0;
+            box-shadow: 0 0 40px rgba(255,202,40,0.3);
+            cursor: pointer;
+            transition: transform 0.05s;
+        }
+        #click-obj:active { transform: scale(0.92); }
+        .send-btn {
+            background: #ffffff;
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="score">0</div>
+    <div id="energy-bar"><div id="energy-fill"></div></div>
+    <div style="margin-top: 5px; font-size: 14px; color: #aaa;">Энергия: <span id="energy-num">100</span>/100</div>
+
+    <div id="click-obj">💰</div>
+
+    <button class="send-btn" onclick="finishGame()">ЗАКОНЧИТЬ</button>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        let score = 0;
+        let energy = 100;
+
+        const scoreEl = document.getElementById('score');
+        const energyFill = document.getElementById('energy-fill');
+        const energyNum = document.getElementById('energy-num');
+        const clickObj = document.getElementById('click-obj');
+
+        tg.expand();
+
+        clickObj.addEventListener('click', (e) => {
+            if (energy > 0) {
+                score += 10;
+                energy -= 2;
+                updateUI();
+                tg.HapticFeedback.impactOccurred('light');
+            } else {
+                tg.HapticFeedback.notificationOccurred('error');
+            }
+        });
+
+        function updateUI() {
+            scoreEl.innerText = score;
+            energyNum.innerText = energy;
+            energyFill.style.width = energy + '%';
+            if (energy < 20) energyFill.style.background = '#f44336';
+        }
+
+        // Регенерация энергии каждые 2 секунды
+        setInterval(() => {
+            if (energy < 100) {
+                energy += 1;
+                updateUI();
+            }
+        }, 2000);
+
+        function finishGame() {
+            tg.sendData(JSON.stringify({score: score}));
+        }
+    </script>
+</body>
+</html>
