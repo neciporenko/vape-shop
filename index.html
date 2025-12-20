@@ -14,10 +14,21 @@
             --card-bg: rgba(20, 20, 25, 0.7);
             --text-main: #ffffff;
             --text-dim: #a0a0a5;
+            --glow-new: #00f2ff;
+            --glow-hit: #ff8c00;
+        }
+
+        /* Анимированный динамический фон (Gradient Mesh) */
+        @keyframes mesh {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
         body {
-            background: var(--bg);
+            background: linear-gradient(-45deg, #050507, #1a0b2e, #0a0a0c, #160826);
+            background-size: 400% 400%;
+            animation: mesh 15s ease infinite;
             color: var(--text-main);
             font-family: 'Inter', sans-serif;
             margin: 0;
@@ -27,20 +38,12 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        /* Анимированный фон со свечением */
-        body::before {
-            content: '';
-            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
-            background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #050507 70%);
-            z-index: -2;
-        }
-
         #snow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             pointer-events: none; z-index: 1;
         }
 
-        /* Навигация (Header) */
+        /* Хедер */
         .header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
             background: rgba(5, 5, 7, 0.85);
@@ -49,16 +52,14 @@
             padding: 20px 0;
         }
 
-        .nav-tabs {
-            display: flex; justify-content: center; gap: 12px;
-        }
+        .nav-tabs { display: flex; justify-content: center; gap: 12px; }
 
         .tab {
             padding: 10px 22px; border-radius: 14px; font-size: 10px;
             font-family: 'Syncopate', sans-serif; font-weight: 700;
-            cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer; transition: all 0.4s ease;
             border: 1px solid rgba(255, 255, 255, 0.05);
-            color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
+            color: var(--text-dim); text-transform: uppercase;
         }
 
         .tab.active {
@@ -68,8 +69,8 @@
             transform: translateY(-2px);
         }
 
-        /* Сетка товаров */
-        .container { padding: 0 20px; display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 2; }
+        /* Контейнер и карточки */
+        .container { padding: 0 20px; display: flex; flex-direction: column; gap: 18px; z-index: 2; position: relative; }
 
         .model-card {
             background: var(--card-bg);
@@ -78,36 +79,40 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 22px;
             position: relative;
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            animation: cardAppear 0.6s ease backwards;
         }
 
-        .model-card::after {
-            content: ''; position: absolute; inset: -1px; border-radius: 24px;
-            padding: 1px; background: linear-gradient(45deg, transparent, rgba(188, 78, 252, 0.3), transparent);
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor; mask-composite: exclude;
-            pointer-events: none;
+        @keyframes cardAppear {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .model-card.open {
-            border-color: var(--accent);
-            box-shadow: 0 0 40px rgba(188, 78, 252, 0.15);
-        }
+        .model-card.open { border-color: var(--accent); box-shadow: 0 0 40px rgba(188, 78, 252, 0.15); }
 
         .model-info { display: flex; justify-content: space-between; align-items: center; }
 
+        .model-title { display: flex; align-items: center; gap: 10px; }
+
         .model-info h3 { 
-            margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.5px;
-            background: linear-gradient(to right, #fff, #a0a0a5);
+            margin: 0; font-size: 18px; font-weight: 800; 
+            background: linear-gradient(to right, #fff, #ccc);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
+        /* Светящиеся Теги */
+        .badge {
+            font-size: 8px; font-weight: 900; padding: 3px 8px; border-radius: 6px;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+        .badge-new { background: var(--glow-new); color: #000; box-shadow: 0 0 12px var(--glow-new); }
+        .badge-hit { background: var(--glow-hit); color: #000; box-shadow: 0 0 12px var(--glow-hit); }
+
         .price-badge {
-            background: rgba(188, 78, 252, 0.15); color: var(--accent);
-            padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 15px;
-            border: 1px solid rgba(188, 78, 252, 0.3);
+            background: rgba(188, 78, 252, 0.1); color: var(--accent);
+            padding: 6px 14px; border-radius: 12px; font-weight: 800;
+            border: 1px solid rgba(188, 78, 252, 0.2);
         }
 
         /* Вкусы */
@@ -123,25 +128,23 @@
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: #efefef; padding: 14px; border-radius: 16px; font-size: 11px;
-            text-align: center; transition: all 0.2s; font-weight: 500;
+            text-align: center; transition: 0.2s; font-weight: 500;
         }
 
         .flavor-btn:active {
             background: var(--accent); color: white;
-            transform: scale(0.94); box-shadow: 0 0 20px var(--accent);
+            transform: scale(0.95); box-shadow: 0 0 20px var(--accent);
         }
 
-        /* Корзина будущего */
+        /* Корзина */
         .cart-float {
             position: fixed; right: 25px; bottom: 35px; z-index: 1001;
-            transform: scale(1); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-
-        .cart-float:active { transform: scale(0.9); }
 
         .cart-circle {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-            width: 68px; height: 68px; border-radius: 24px;
+            width: 70px; height: 70px; border-radius: 24px;
             display: flex; align-items: center; justify-content: center;
             box-shadow: 0 15px 35px rgba(188, 78, 252, 0.4);
             font-size: 28px; border: 1px solid rgba(255, 255, 255, 0.2);
@@ -150,14 +153,11 @@
         #cart-count {
             position: absolute; top: -8px; right: -8px;
             background: white; color: black; font-size: 11px; font-weight: 900;
-            width: 24px; height: 24px; border-radius: 10px;
+            width: 26px; height: 26px; border-radius: 10px;
             display: none; align-items: center; justify-content: center;
             box-shadow: 0 5px 15px rgba(0,0,0,0.3);
         }
 
-        .new-year-icon { position: absolute; top: -12px; left: -10px; font-size: 24px; filter: drop-shadow(0 0 5px gold); }
-
-        /* Эффект полета */
         .fly-particle {
             position: fixed; z-index: 9999; pointer-events: none;
             width: 12px; height: 12px; background: var(--accent);
@@ -179,40 +179,44 @@
 </div>
 
 <div class="container">
-    <div class="model-card" data-type="pods" onclick="toggleCard(this)">
-        <div class="new-year-icon">⭐</div>
+    <div class="model-card" data-type="pods" onclick="toggleCard(this)" style="animation-delay: 0.1s">
         <div class="model-info">
-            <h3>WAKA MIRROR 10K</h3>
+            <div class="model-title">
+                <h3>MIRROR 10K</h3>
+                <span class="badge badge-new">NEW</span>
+            </div>
             <div class="price-badge">5500 ₸</div>
         </div>
         <div class="flavors">
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Ice Grape', 5500, event)">🍇 ICE GRAPE</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Mango', 5500, event)">🥭 MANGO</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Cherry', 5500, event)">🍒 CHERRY</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Cactus', 5500, event)">🌵 CACTUS</div>
+            <div class="flavor-btn" onclick="addToCart('10k: Ice Grape', 5500, event)">🍇 ICE GRAPE</div>
+            <div class="flavor-btn" onclick="addToCart('10k: Mango', 5500, event)">🥭 MANGO</div>
+            <div class="flavor-btn" onclick="addToCart('10k: Cherry', 5500, event)">🍒 CHERRY</div>
+            <div class="flavor-btn" onclick="addToCart('10k: Cactus', 5500, event)">🌵 CACTUS</div>
         </div>
     </div>
 
-    <div class="model-card" data-type="pods" onclick="toggleCard(this)">
+    <div class="model-card" data-type="pods" onclick="toggleCard(this)" style="animation-delay: 0.2s">
         <div class="model-info">
-            <h3>WAKA SOPRO 7K</h3>
+            <div class="model-title">
+                <h3>SOPRO 7K</h3>
+                <span class="badge badge-hit">HIT</span>
+            </div>
             <div class="price-badge">4000 ₸</div>
         </div>
         <div class="flavors">
-            <div class="flavor-btn" onclick="addToCart('Waka 7k: Blueberry', 4000, event)">🫐 BLUEBERRY</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 7k: Mint', 4000, event)">🌿 MINT</div>
+            <div class="flavor-btn" onclick="addToCart('7k: Blueberry', 4000, event)">🫐 BLUEBERRY</div>
+            <div class="flavor-btn" onclick="addToCart('7k: Mint', 4000, event)">🌿 MINT</div>
         </div>
     </div>
 
-    <div class="model-card" data-type="liquids" onclick="toggleCard(this)">
-        <div class="new-year-icon">🎄</div>
+    <div class="model-card" data-type="liquids" onclick="toggleCard(this)" style="animation-delay: 0.3s">
         <div class="model-info">
-            <h3>HUSKY DOUBLE ICE</h3>
+            <div class="model-title"><h3>HUSKY ICE</h3></div>
             <div class="price-badge">2500 ₸</div>
         </div>
         <div class="flavors">
             <div class="flavor-btn" onclick="addToCart('Husky: Kiwi', 2500, event)">🥝 KIWI</div>
-            <div class="flavor-btn" onclick="addToCart('Husky: Watermelon', 2500, event)">🍉 BOMB</div>
+            <div class="flavor-btn" onclick="addToCart('Husky: Berry', 2500, event)">🍉 BOMB</div>
         </div>
     </div>
 </div>
@@ -228,7 +232,7 @@
     
     let cart = [];
 
-    // Плавная фильтрация
+    // Плавная фильтрация с тактильным откликом
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelector('.tab.active').classList.remove('active');
@@ -238,10 +242,9 @@
             document.querySelectorAll('.model-card').forEach(card => {
                 if (filter === 'all' || card.getAttribute('data-type') === filter) {
                     card.style.display = 'block';
-                    setTimeout(() => card.style.opacity = '1', 10);
+                    card.style.animation = 'cardAppear 0.4s ease forwards';
                 } else {
-                    card.style.opacity = '0';
-                    setTimeout(() => card.style.display = 'none', 300);
+                    card.style.display = 'none';
                 }
             });
             tg.HapticFeedback.selectionChanged();
@@ -259,7 +262,7 @@
         event.stopPropagation();
         cart.push({name, price});
         
-        // Эффект полета частицы
+        // Полет частицы
         const fly = document.createElement('div');
         fly.className = 'fly-particle';
         fly.style.left = event.clientX + 'px';
@@ -269,8 +272,8 @@
         const cartRect = document.querySelector('.cart-circle').getBoundingClientRect();
         
         setTimeout(() => {
-            fly.style.left = cartRect.left + 25 + 'px';
-            fly.style.top = cartRect.top + 25 + 'px';
+            fly.style.left = cartRect.left + 30 + 'px';
+            fly.style.top = cartRect.top + 30 + 'px';
             fly.style.transform = 'scale(0.5) rotate(360deg)';
             fly.style.opacity = '0';
         }, 50);
@@ -278,7 +281,7 @@
         setTimeout(() => {
             fly.remove();
             updateUI();
-        }, 750);
+        }, 700);
 
         tg.HapticFeedback.notificationOccurred('success');
     }
@@ -291,7 +294,7 @@
             
             let total = cart.reduce((sum, item) => sum + item.price, 0);
             tg.MainButton.setParams({
-                text: `OФОРМИТЬ ЗАКАЗ (${total} ₸)`,
+                text: `КУПИТЬ ТОВАРЫ (${total} ₸)`,
                 color: "#bc4efc",
                 is_visible: true
             });
@@ -304,7 +307,7 @@
         tg.sendData(JSON.stringify({ item: res, price: total }));
     });
 
-    // ХУДОЖЕСТВЕННЫЙ СНЕГ
+    // Плавный снег
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
     let w = canvas.width = window.innerWidth;
@@ -312,10 +315,11 @@
     let flakes = [];
 
     function initSnow() {
-        for(let i=0; i<60; i++) {
+        flakes = [];
+        for(let i=0; i<50; i++) {
             flakes.push({
                 x: Math.random()*w, y: Math.random()*h,
-                r: Math.random()*2 + 0.5, d: Math.random()*0.3 + 0.1,
+                r: Math.random()*2 + 1, d: Math.random()*0.3 + 0.1,
                 a: Math.random()*Math.PI
             });
         }
@@ -323,13 +327,13 @@
 
     function drawSnow() {
         ctx.clearRect(0,0,w,h);
-        ctx.fillStyle = "rgba(255,255,255,0.3)";
+        ctx.fillStyle = "rgba(255,255,255,0.2)";
         ctx.beginPath();
         flakes.forEach(f => {
             ctx.moveTo(f.x, f.y);
             ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
             f.y += f.d;
-            f.x += Math.sin(f.a) * 0.4;
+            f.x += Math.sin(f.a) * 0.3;
             f.a += 0.01;
             if(f.y > h) f.y = -10, f.x = Math.random()*w;
         });
@@ -337,6 +341,7 @@
         requestAnimationFrame(drawSnow);
     }
     initSnow(); drawSnow();
+    window.addEventListener('resize', initSnow);
 </script>
 </body>
 </html>
