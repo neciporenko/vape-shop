@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #0f0f0f; color: white; margin: 0; padding: 15px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { background: #1a1a1a; border-radius: 20px; padding: 10px; text-align: center; border: 1px solid #333; }
+        .card img { width: 100%; border-radius: 15px; margin-bottom: 10px; }
+        .card h3 { margin: 5px 0; font-size: 14px; }
+        .price { color: #31b545; font-weight: bold; margin-bottom: 10px; display: block; }
+        .btn { background: #0088cc; color: white; border: none; padding: 8px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Vape Shop Menu</h2>
+        <p>Выберите устройство</p>
+    </div>
+    <div class="grid">
+        <div class="card">
+            <img src="https://www.google.com/url?sa=t&source=web&rct=j&url=https%3A%2F%2Fvapelab.shop%2Fcollection%2Fwaka-sopro-20000-zatyazhek-20mg-hard-2-hard&ved=0CBUQjRxqFwoTCNjktbKay5EDFQAAAAAdAAAAABB4&opi=89978449" alt="Vaka 20k"> <h3>Vaka 20k</h3>
+            <span class="price">15 000 ₸</span>
+            <button class="btn" onclick="sendData('Vaka 20k', 15000)">Выбрать</button>
+        </div>
+        <div class="card">
+            <img src="https://yandex-images.clstorage.net/9P7d4Os14/cae4caN9EJ/yyWsZLn8WkNX9sz6UTu6qzUsixTNT0LwoKeoiUJYHbaTKYJPy_uHw6cZLtvEWll6g0c8EDfJjbv8TogcDmjDHI5v9HKgrU5DFfaOuUd5sapyMrUl6Gt4gYGQleFscxD6mCmGGNSkyq_BDWutj2xCNOdfE1Y7mN2NqDC8ZgM6wgjaG-EO0s9laVH7z-ExFJqAcDuTF8hgQLS0qYzHd0Ut7L4JpSe1l-qY80Z0r4BRUTXwVx9rAKH_rq4Ph3gPCcEI9zL3PM_3a01ZxOvqOA-sqWgNuC7mZ1eTramQ6UlSD_KOKrcKnaXRn9ZuTKCOVHci-mAwRgO26Je5C7x0ISbNJMEZ9AXF1kZsUdPQ_DUilIFKFL4P2UJjkrSlpuhERCjouCSRDomm84X8QEuniUp_NvBcPkkQnt6Xqjm-XTI77BHfJ8c58t94eEXS6fgGOrqZVBGaK-5daJGcjJrsalEPyJ0eig-OhN6j0XRVhb5tWw39URJQHKnzqLw_mmcTFu0s-QXAAOXff2Fl7t3oMhmHk1c0jz3wU1CRrISz7FV1Bu-aOqoqn7XHm8lnQq68X10D2kkJRzO164O4FI52DjLgHugO1Srz1X5WSuPw4iYYva5wBJM-wn90qLuOv_5megb6hzepGJO5-L3mZmilpVl_DdxzHHIivdGgrwGodgU11DruPeAS-_VWU2_G_c0KMI-ieRefMfhacp-rh5bWQEwH0Z8JqzGKjteWzlVtmI17dS3VbAt2JYr7loIsiGIaJuMw9wLmKfvzY1Bk_sneNAKqqWE6mRDHaX-2vJaY5E5kKMufDIIPtIfBhOhETbGAe2sP0HQjSjGhyJerIZxtGTH3Ms8k3wzV6URja8707xk4lZ5hPrs3_FNMtaa3i95vTwbLvyKiKYuqybH7XFyGpU5jBOF3HHI5heOjqj6NZwMW1QTsEcQy5MREW2nZ_fsTOqahagWACspcfYi2lKbjVWo" alt="Vaka 30k"> <h3>Vaka 30k</h3>
+            <span class="price">19 000 ₸</span>
+            <button class="btn" onclick="sendData('Vaka 30k', 19000)">Выбрать</button>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+
+        function sendData(model, price) {
+            let data = { item: model, price: price };
+            tg.sendData(JSON.stringify(data));
+        }
+    </script>
+</body>
+</html>
