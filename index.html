@@ -3,234 +3,216 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Waka Club Premium</title>
+    <title>WAKA VIP SHOP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0b0e14;
-            --accent: #a855f7;
-            --accent-glow: rgba(168, 85, 247, 0.4);
-            --glass: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --text: #ffffff;
+            --primary-purple: #9d50bb;
+            --accent-glow: #6e48aa;
+            --bg-dark: #0a0a0c;
+            --glass: rgba(255, 255, 255, 0.05);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 25%),
-                radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 25%);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 20px;
+            background: var(--bg-dark);
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding-top: 70px; /* Для фикс шапки */
             overflow-x: hidden;
         }
 
-        header { text-align: center; margin-bottom: 20px; }
-        h1 { font-weight: 800; font-size: 32px; letter-spacing: -1.5px; text-transform: uppercase; }
+        /* Падающий снег */
+        #snow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 100;
+        }
 
-        /* Поиск и Категории */
-        .search-box {
+        /* Хедер с фильтрами и корзиной */
+        .header {
+            position: fixed; top: 0; width: 100%; z-index: 1000;
+            background: rgba(10, 10, 12, 0.8);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(157, 80, 187, 0.3);
+            padding: 10px 0;
+        }
+
+        .nav-tabs {
+            display: flex; justify-content: space-around; padding: 5px 10px;
+        }
+
+        .tab {
+            padding: 8px 15px; border-radius: 20px; font-size: 13px;
+            cursor: pointer; transition: 0.3s; border: 1px solid transparent;
+            color: #aaa;
+        }
+
+        .tab.active {
+            background: var(--primary-purple); color: white;
+            box-shadow: 0 0 15px var(--primary-purple);
+        }
+
+        .cart-icon {
+            position: fixed; right: 20px; bottom: 20px;
+            background: var(--primary-purple); width: 60px; height: 60px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px var(--primary-purple); z-index: 1001;
+            font-size: 24px;
+        }
+
+        /* Карточки */
+        .container { padding: 15px; display: grid; gap: 20px; }
+
+        .model-card {
             background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            padding: 12px 20px;
-            width: 100%;
-            color: white;
-            outline: none;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
+            border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 15px; overflow: hidden; position: relative;
         }
 
-        .categories {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto;
-            margin-bottom: 25px;
-            padding-bottom: 5px;
-        }
-        .categories::-webkit-scrollbar { display: none; }
-        
-        .cat-btn {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            padding: 8px 18px;
-            border-radius: 20px;
-            color: white;
-            white-space: nowrap;
-            font-size: 13px;
-            font-weight: 600;
-            transition: 0.3s;
-        }
-        .cat-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .model-card:hover { border-color: var(--primary-purple); }
 
-        /* Сетка */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            padding-bottom: 120px;
+        .model-info { display: flex; align-items: center; gap: 15px; }
+        .model-info img { width: 80px; filter: drop-shadow(0 0 10px var(--primary-purple)); }
+
+        .flavors {
+            max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out;
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;
         }
 
-        /* Карточка */
-        .card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 24px;
-            padding: 12px;
-            backdrop-filter: blur(20px);
-            position: relative;
-            animation: fadeIn 0.5s ease backwards;
+        .model-card.open .flavors { max-height: 500px; margin-top: 15px; }
+
+        .flavor-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1);
+            color: white; padding: 10px; border-radius: 12px; font-size: 12px;
+            text-align: center; transition: 0.2s;
         }
 
-        .badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: var(--accent);
-            font-size: 9px;
-            font-weight: 800;
-            padding: 4px 8px;
-            border-radius: 8px;
-            z-index: 2;
+        .flavor-btn:active { background: var(--primary-purple); transform: scale(0.95); }
+
+        /* Анимация полета */
+        .flying-item {
+            position: fixed; z-index: 9999; pointer-events: none;
+            width: 30px; height: 30px; background: var(--primary-purple);
+            border-radius: 50%; transition: all 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .card img { width: 100%; border-radius: 18px; margin-bottom: 10px; }
-        .card-name { font-size: 14px; font-weight: 600; margin-bottom: 5px; height: 34px; overflow: hidden; }
-        .card-price { color: var(--accent); font-weight: 800; font-size: 16px; margin-bottom: 10px; }
-
-        .add-btn {
-            width: 100%;
-            background: white;
-            color: black;
-            border: none;
-            padding: 10px;
-            border-radius: 14px;
-            font-weight: 800;
-            font-size: 12px;
-            transition: 0.2s;
+        .new-year-decor {
+            position: absolute; top: -5px; right: -5px; font-size: 20px;
         }
-        .add-btn:active { transform: scale(0.92); background: var(--accent); color: white; }
-
-        /* Панель корзины */
-        .cart-bar {
-            position: fixed;
-            bottom: 25px;
-            left: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(25px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 18px 25px;
-            border-radius: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transform: translateY(150%);
-            transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-        .cart-bar.show { transform: translateY(0); }
-
-        .order-btn {
-            background: var(--accent);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 15px;
-            font-weight: 800;
-            box-shadow: 0 0 20px var(--accent-glow);
-        }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <header><h1>WAKA CLUB</h1></header>
+<canvas id="snow"></canvas>
 
-    <input type="text" class="search-box" placeholder="Поиск любимого вкуса..." id="search" oninput="filterProducts()">
-
-    <div class="categories">
-        <div class="cat-btn active" onclick="filterCat('all', this)">Все</div>
-        <div class="cat-btn" onclick="filterCat('disposable', this)">Одноразки</div>
-        <div class="cat-btn" onclick="filterCat('liquid', this)">Жидкости</div>
-        <div class="cat-btn" onclick="filterCat('pods', this)">Под-системы</div>
+<div class="header">
+    <div class="nav-tabs">
+        <div class="tab active" onclick="filter('all')">Все</div>
+        <div class="tab" onclick="filter('pods')">Одноразки</div>
+        <div class="tab" onclick="filter('liquids')">Жидкости</div>
     </div>
+</div>
 
-    <div class="grid" id="product-grid"></div>
-
-    <div class="cart-bar" id="cart-bar">
-        <div>
-            <div style="font-size: 12px; opacity: 0.6;">К оплате:</div>
-            <div style="font-size: 18px; font-weight: 800;" id="total-price">0 ₸</div>
+<div class="container">
+    <div class="model-card" onclick="this.classList.toggle('open')">
+        <div class="new-year-decor">🎄</div>
+        <div class="model-info">
+            <img src="https://neciporenko.github.io/vape-shop/waka10.png">
+            <div>
+                <h3 style="margin:0">Waka PA10000</h3>
+                <span style="color:var(--primary-purple)">5500 ₸</span>
+            </div>
         </div>
-        <button class="order-btn" onclick="checkout()">Оформить</button>
+        <div class="flavors">
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Вишня', 5500, event)">🍒 Вишня</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Арбуз', 5500, event)">🍉 Арбуз</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Мята', 5500, event)">🌿 Мята</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Ежевика', 5500, event)">🍇 Ежевика</div>
+        </div>
     </div>
+</div>
 
-    <script>
-        let tg = window.Telegram.WebApp;
-        tg.expand();
+<div class="cart-icon" id="cart">🛒</div>
 
-        const products = [
-            { name: "Waka SoPro 10k - Киви", price: 6500, cat: "disposable", img: "https://via.placeholder.com/200", badge: "HOT" },
-            { name: "Waka SoPro 10k - Мята", price: 6500, cat: "disposable", img: "https://via.placeholder.com/200", badge: "" },
-            { name: "Maxwell's - Shoria", price: 4500, cat: "liquid", img: "https://via.placeholder.com/200", badge: "NEW" },
-            { name: "XROS 3 Mini", price: 12500, cat: "pods", img: "https://via.placeholder.com/200", badge: "SALE" },
-        ];
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+    tg.MainButton.setText("ОФОРМИТЬ ЗАКАЗ");
+    tg.MainButton.textColor = "#FFFFFF";
+    tg.MainButton.color = "#9d50bb";
 
-        let cart = [];
-        let currentCat = 'all';
+    let cart = [];
 
-        function render() {
-            const grid = document.getElementById('product-grid');
-            const search = document.getElementById('search').value.toLowerCase();
-            grid.innerHTML = '';
+    function addToCart(name, price, event) {
+        event.stopPropagation(); // Чтобы карточка не закрылась
+        cart.push({name, price});
+        
+        // Эффект полета
+        const fly = document.createElement('div');
+        fly.className = 'flying-item';
+        fly.style.left = event.clientX + 'px';
+        fly.style.top = event.clientY + 'px';
+        document.body.appendChild(fly);
 
-            products.filter(p => 
-                (currentCat === 'all' || p.cat === currentCat) && 
-                p.name.toLowerCase().includes(search)
-            ).forEach(p => {
-                grid.innerHTML += `
-                    <div class="card">
-                        ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
-                        <img src="${p.img}">
-                        <div class="card-name">${p.name}</div>
-                        <div class="card-price">${p.price} ₸</div>
-                        <button class="add-btn" onclick="add('${p.name}', ${p.price})">В корзину</button>
-                    </div>
-                `;
-            });
+        const cartPos = document.getElementById('cart').getBoundingClientRect();
+        
+        setTimeout(() => {
+            fly.style.left = cartPos.left + 15 + 'px';
+            fly.style.top = cartPos.top + 15 + 'px';
+            fly.style.transform = 'scale(0.2)';
+            fly.style.opacity = '0';
+        }, 10);
+
+        setTimeout(() => fly.remove(), 800);
+        tg.HapticFeedback.impactOccurred('medium');
+        
+        updateMainButton();
+    }
+
+    function updateMainButton() {
+        if (cart.length > 0) {
+            let total = cart.reduce((sum, item) => sum + item.price, 0);
+            tg.MainButton.show();
+            tg.MainButton.setText(`КУПИТЬ (${total} ₸)`);
         }
+    }
 
-        function filterCat(cat, btn) {
-            currentCat = cat;
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            render();
+    tg.MainButton.onClick(() => {
+        tg.sendData(JSON.stringify({
+            order: cart,
+            total: cart.reduce((sum, item) => sum + item.price, 0)
+        }));
+    });
+
+    // Снег
+    const canvas = document.getElementById('snow');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+    const flakes = [];
+
+    function createFlakes() {
+        for (let i = 0; i < 100; i++) {
+            flakes.push({ x: Math.random() * width, y: Math.random() * height, r: Math.random() * 3 + 1, d: Math.random() * 1 });
         }
+    }
 
-        function filterProducts() { render(); }
-
-        function add(name, price) {
-            cart.push({name, price});
-            tg.HapticFeedback.impactOccurred('light');
-            const total = cart.reduce((s, p) => s + p.price, 0);
-            document.getElementById('total-price').innerText = total + ' ₸';
-            document.getElementById('cart-bar').classList.add('show');
-        }
-
-        function checkout() {
-            const total = cart.reduce((s, p) => s + p.price, 0);
-            const items = cart.map(p => p.name).join(", ");
-            tg.sendData(JSON.stringify({item: items, price: total}));
-        }
-
-        render();
-    </script>
+    function drawFlakes() {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = "white";
+        ctx.beginPath();
+        flakes.forEach(f => {
+            ctx.moveTo(f.x, f.y);
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+            f.y += Math.pow(f.d, 2) + 1;
+            f.x += Math.sin(f.y / 30);
+            if (f.y > height) f.y = -10, f.x = Math.random() * width;
+        });
+        ctx.fill();
+        requestAnimationFrame(drawFlakes);
+    }
+    createFlakes(); drawFlakes();
+</script>
 </body>
 </html>
