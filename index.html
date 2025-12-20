@@ -3,245 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Waka Club Shop</title>
+    <title>Waka Club Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f0c29;
-            --main-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-            --accent-color: #a855f7;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --text-color: #ffffff;
+            --bg-color: #0b0e14;
+            --accent: #a855f7;
+            --accent-glow: rgba(168, 85, 247, 0.4);
+            --glass: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text: #ffffff;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            -webkit-tap-highlight-color: transparent;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--main-gradient);
-            background-attachment: fixed;
-            color: var(--text-color);
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(168, 85, 247, 0.15) 0%, transparent 25%),
+                radial-gradient(circle at 100% 100%, rgba(168, 85, 247, 0.1) 0%, transparent 25%);
+            color: var(--text);
             min-height: 100vh;
             padding: 20px;
             overflow-x: hidden;
         }
 
-        h1 {
-            font-weight: 800;
-            font-size: 28px;
-            text-align: center;
-            margin-bottom: 25px;
-            letter-spacing: -1px;
-            background: linear-gradient(to right, #fff, var(--accent-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { font-weight: 800; font-size: 32px; letter-spacing: -1.5px; text-transform: uppercase; }
+
+        /* Поиск и Категории */
+        .search-box {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 12px 20px;
+            width: 100%;
+            color: white;
+            outline: none;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
         }
 
-        /* Сетка товаров */
-        .items-container {
+        .categories {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            margin-bottom: 25px;
+            padding-bottom: 5px;
+        }
+        .categories::-webkit-scrollbar { display: none; }
+        
+        .cat-btn {
+            background: var(--glass);
+            border: 1px solid var(--glass-border);
+            padding: 8px 18px;
+            border-radius: 20px;
+            color: white;
+            white-space: nowrap;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .cat-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+
+        /* Сетка */
+        .grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
             gap: 15px;
-            padding-bottom: 100px;
-            animation: fadeInUp 0.8s ease-out;
+            padding-bottom: 120px;
         }
 
-        /* Карточка товара (Glassmorphism) */
-        .item-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
+        /* Карточка */
+        .card {
+            background: var(--glass);
             border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 15px;
-            text-align: center;
-            transition: transform 0.3s ease, border-color 0.3s ease;
+            border-radius: 24px;
+            padding: 12px;
+            backdrop-filter: blur(20px);
             position: relative;
-            overflow: hidden;
+            animation: fadeIn 0.5s ease backwards;
         }
 
-        .item-card:active {
-            transform: scale(0.95);
-            border-color: var(--accent-color);
-        }
-
-        .item-card img {
-            width: 100%;
-            height: auto;
-            border-radius: 12px;
-            margin-bottom: 10px;
-        }
-
-        .item-name {
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .item-price {
-            font-size: 16px;
+        .badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--accent);
+            font-size: 9px;
             font-weight: 800;
-            color: var(--accent-color);
-            margin-bottom: 12px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            z-index: 2;
         }
 
-        /* Кнопки */
-        .btn-add {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 12px;
-            font-weight: 600;
-            cursor: pointer;
+        .card img { width: 100%; border-radius: 18px; margin-bottom: 10px; }
+        .card-name { font-size: 14px; font-weight: 600; margin-bottom: 5px; height: 34px; overflow: hidden; }
+        .card-price { color: var(--accent); font-weight: 800; font-size: 16px; margin-bottom: 10px; }
+
+        .add-btn {
             width: 100%;
-            transition: box-shadow 0.3s ease;
+            background: white;
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 12px;
+            transition: 0.2s;
         }
+        .add-btn:active { transform: scale(0.92); background: var(--accent); color: white; }
 
-        .btn-add:active {
-            box-shadow: 0 0 15px var(--accent-color);
-        }
-
-        /* Нижняя плашка корзины */
-        .cart-status {
+        /* Панель корзины */
+        .cart-bar {
             position: fixed;
-            bottom: 20px;
+            bottom: 25px;
             left: 20px;
             right: 20px;
-            background: rgba(168, 85, 247, 0.9);
-            backdrop-filter: blur(10px);
-            padding: 15px 25px;
-            border-radius: 25px;
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 18px 25px;
+            border-radius: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             transform: translateY(150%);
-            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 1000;
+            transition: 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
+        .cart-bar.show { transform: translateY(0); }
 
-        .cart-status.active {
-            transform: translateY(0);
-        }
-
-        .cart-info {
-            font-weight: 600;
-        }
-
-        .btn-order {
-            background: white;
-            color: black;
+        .order-btn {
+            background: var(--accent);
+            color: white;
             border: none;
             padding: 10px 20px;
             border-radius: 15px;
             font-weight: 800;
-            text-transform: uppercase;
-            font-size: 12px;
+            box-shadow: 0 0 20px var(--accent-glow);
         }
 
-        /* Анимации */
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Кастомный скроллбар */
-        ::-webkit-scrollbar { width: 0px; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <h1>WAKA CLUB</h1>
+    <header><h1>WAKA CLUB</h1></header>
 
-    <div class="items-container" id="items-grid">
-        </div>
+    <input type="text" class="search-box" placeholder="Поиск любимого вкуса..." id="search" oninput="filterProducts()">
 
-    <div class="cart-status" id="cart-panel">
-        <div class="cart-info">
-            <span id="cart-count">0</span> тов. | <span id="cart-total">0</span> ₸
+    <div class="categories">
+        <div class="cat-btn active" onclick="filterCat('all', this)">Все</div>
+        <div class="cat-btn" onclick="filterCat('disposable', this)">Одноразки</div>
+        <div class="cat-btn" onclick="filterCat('liquid', this)">Жидкости</div>
+        <div class="cat-btn" onclick="filterCat('pods', this)">Под-системы</div>
+    </div>
+
+    <div class="grid" id="product-grid"></div>
+
+    <div class="cart-bar" id="cart-bar">
+        <div>
+            <div style="font-size: 12px; opacity: 0.6;">К оплате:</div>
+            <div style="font-size: 18px; font-weight: 800;" id="total-price">0 ₸</div>
         </div>
-        <button class="btn-order" onclick="sendOrder()">Оформить</button>
+        <button class="order-btn" onclick="checkout()">Оформить</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
-        tg.MainButton.hide();
 
-        // Данные товаров (можешь менять картинки и цены тут)
         const products = [
-            { id: 1, name: "Waka SoPro 10000 - Киви", price: 6500, img: "https://via.placeholder.com/150" },
-            { id: 2, name: "Waka SoPro 10000 - Арбуз", price: 6500, img: "https://via.placeholder.com/150" },
-            { id: 3, name: "Waka 20000 - Малина", price: 8500, img: "https://via.placeholder.com/150" },
-            { id: 4, name: "Waka 20000 - Мята", price: 8500, img: "https://via.placeholder.com/150" },
+            { name: "Waka SoPro 10k - Киви", price: 6500, cat: "disposable", img: "https://via.placeholder.com/200", badge: "HOT" },
+            { name: "Waka SoPro 10k - Мята", price: 6500, cat: "disposable", img: "https://via.placeholder.com/200", badge: "" },
+            { name: "Maxwell's - Shoria", price: 4500, cat: "liquid", img: "https://via.placeholder.com/200", badge: "NEW" },
+            { name: "XROS 3 Mini", price: 12500, cat: "pods", img: "https://via.placeholder.com/200", badge: "SALE" },
         ];
 
         let cart = [];
+        let currentCat = 'all';
 
-        function renderProducts() {
-            const grid = document.getElementById('items-grid');
-            products.forEach(p => {
-                const card = document.createElement('div');
-                card.className = 'item-card';
-                card.innerHTML = `
-                    <img src="${p.img}" alt="${p.name}">
-                    <div class="item-name">${p.name}</div>
-                    <div class="item-price">${p.price} ₸</div>
-                    <button class="btn-add" onclick="addToCart(${p.id})">Добавить</button>
+        function render() {
+            const grid = document.getElementById('product-grid');
+            const search = document.getElementById('search').value.toLowerCase();
+            grid.innerHTML = '';
+
+            products.filter(p => 
+                (currentCat === 'all' || p.cat === currentCat) && 
+                p.name.toLowerCase().includes(search)
+            ).forEach(p => {
+                grid.innerHTML += `
+                    <div class="card">
+                        ${p.badge ? `<div class="badge">${p.badge}</div>` : ''}
+                        <img src="${p.img}">
+                        <div class="card-name">${p.name}</div>
+                        <div class="card-price">${p.price} ₸</div>
+                        <button class="add-btn" onclick="add('${p.name}', ${p.price})">В корзину</button>
+                    </div>
                 `;
-                grid.appendChild(card);
             });
         }
 
-        function addToCart(id) {
-            const product = products.find(p => p.id === id);
-            cart.push(product);
-            updateCartUI();
-            
-            // Легкая вибрация при добавлении (только в мобильном приложении)
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
+        function filterCat(cat, btn) {
+            currentCat = cat;
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            render();
         }
 
-        function updateCartUI() {
-            const panel = document.getElementById('cart-panel');
-            const total = cart.reduce((sum, p) => sum + p.price, 0);
-            
-            if (cart.length > 0) {
-                panel.classList.add('active');
-                document.getElementById('cart-count').innerText = cart.length;
-                document.getElementById('cart-total').innerText = total;
-            }
+        function filterProducts() { render(); }
+
+        function add(name, price) {
+            cart.push({name, price});
+            tg.HapticFeedback.impactOccurred('light');
+            const total = cart.reduce((s, p) => s + p.price, 0);
+            document.getElementById('total-price').innerText = total + ' ₸';
+            document.getElementById('cart-bar').classList.add('show');
         }
 
-        function sendOrder() {
-            if (cart.length === 0) return;
-            
-            const total = cart.reduce((sum, p) => sum + p.price, 0);
-            const itemsSummary = cart.map(p => p.name).join(", ");
-            
-            const orderData = {
-                item: itemsSummary,
-                price: total
-            };
-
-            tg.sendData(JSON.stringify(orderData));
+        function checkout() {
+            const total = cart.reduce((s, p) => s + p.price, 0);
+            const items = cart.map(p => p.name).join(", ");
+            tg.sendData(JSON.stringify({item: items, price: total}));
         }
 
-        renderProducts();
+        render();
     </script>
 </body>
 </html>
