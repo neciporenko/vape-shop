@@ -3,162 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Waka Club Store</title>
+    <title>Waka Club Shop</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #030b1c;
-            --card-bg: #0a162b;
-            --accent-blue: #0055ff;
-            --accent-cyan: #00d4ff;
-            --text-main: #ffffff;
-            --text-dim: #a0acbd;
+            --bg-color: #0f0c29;
+            --main-gradient: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            --accent-color: #a855f7;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-color: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0; padding: 20px; padding-bottom: 100px;
-            display: flex; flex-direction: column; align-items: center;
+            font-family: 'Inter', sans-serif;
+            background: var(--main-gradient);
+            background-attachment: fixed;
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
         }
 
-        .header-title { font-size: 28px; margin-bottom: 25px; font-weight: 800; }
-        .header-title span { color: var(--accent-blue); }
-
-        /* Карточка товара */
-        .product-card {
-            background: linear-gradient(145deg, #0a162b, #050e1f);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px; padding: 20px;
-            width: 100%; max-width: 340px; margin-bottom: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        h1 {
+            font-weight: 800;
+            font-size: 28px;
+            text-align: center;
+            margin-bottom: 25px;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #fff, var(--accent-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .product-img { width: 100%; border-radius: 18px; margin-bottom: 15px; }
-        .price-tag { font-size: 22px; color: var(--accent-cyan); font-weight: bold; margin: 10px 0; }
-
-        /* Выбор вкусов */
-        .flavor-list { display: none; flex-direction: column; gap: 8px; margin-top: 15px; }
-        .flavor-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white; padding: 12px; border-radius: 12px;
-            text-align: center; cursor: pointer; transition: 0.2s;
-        }
-        .flavor-item:active { background: var(--accent-blue); }
-
-        .action-button {
-            background: linear-gradient(90deg, var(--accent-blue), #00a2ff);
-            color: white; border: none; padding: 14px;
-            width: 100%; border-radius: 16px; font-weight: bold; font-size: 16px;
+        /* Сетка товаров */
+        .items-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            padding-bottom: 100px;
+            animation: fadeInUp 0.8s ease-out;
         }
 
-        /* Кнопка Корзины */
-        .cart-footer {
-            position: fixed; bottom: 20px; left: 50%;
-            transform: translateX(-50%);
-            width: 90%; max-width: 400px;
-            background: var(--accent-blue);
-            padding: 15px; border-radius: 20px;
-            display: none; justify-content: space-between; align-items: center;
-            box-shadow: 0 5px 25px rgba(0, 85, 255, 0.4);
+        /* Карточка товара (Glassmorphism) */
+        .item-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 15px;
+            text-align: center;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .item-card:active {
+            transform: scale(0.95);
+            border-color: var(--accent-color);
+        }
+
+        .item-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin-bottom: 10px;
+        }
+
+        .item-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .item-price {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--accent-color);
+            margin-bottom: 12px;
+        }
+
+        /* Кнопки */
+        .btn-add {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .btn-add:active {
+            box-shadow: 0 0 15px var(--accent-color);
+        }
+
+        /* Нижняя плашка корзины */
+        .cart-status {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: rgba(168, 85, 247, 0.9);
+            backdrop-filter: blur(10px);
+            padding: 15px 25px;
+            border-radius: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            transform: translateY(150%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             z-index: 1000;
         }
 
-        .cart-info { font-weight: bold; }
-        .checkout-btn {
-            background: white; color: var(--accent-blue);
-            border: none; padding: 8px 15px; border-radius: 12px; font-weight: 800;
+        .cart-status.active {
+            transform: translateY(0);
         }
 
-        /* Анимация появления */
-        @keyframes bounce {
-            0% { transform: translateX(-50%) scale(0.9); }
-            70% { transform: translateX(-50%) scale(1.05); }
-            100% { transform: translateX(-50%) scale(1); }
+        .cart-info {
+            font-weight: 600;
         }
-        .show-cart { display: flex; animation: bounce 0.4s ease; }
+
+        .btn-order {
+            background: white;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 15px;
+            font-weight: 800;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        /* Анимации */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar { width: 0px; }
     </style>
 </head>
 <body>
 
-    <div class="header-title">WAKA <span>CLUB</span></div>
+    <h1>WAKA CLUB</h1>
 
-    <div class="product-card" id="card-waka20">
-        <img src="https://tuning72.com/images/stories/virtuemart/product/Elektronnyye-sigarety-Waka-soPro-20000-puffs-5.jpg/400x300/0a162b/ffffff?text=SoPro+20k" class="product-img">
-        <h3>SoPro 20,000</h3>
-        <div class="price-tag">15 000 ₸</div>
-        <button class="action-button" onclick="toggleFlavors('waka20')">ВЫБРАТЬ ВКУС</button>
-        <div class="flavor-list" id="list-waka20">
-            <div class="flavor-item" onclick="addToCart('Vaka 20k', 15000, 'Манго-Лед')">🥭 Манго-Лед</div>
-            <div class="flavor-item" onclick="addToCart('Vaka 20k', 15000, 'Арбуз')">🍉 Арбуз</div>
+    <div class="items-container" id="items-grid">
         </div>
-    </div>
 
-    <div class="product-card" id="card-waka30">
-        <img src="https://shop.kalyancenter.com/image/cache/catalog/2021/1736980527_t_%D0%AD%D0%A1-WAKA-JUPITER-DM-30000-2-800x800.jpg/400x300/0a162b/ffffff?text=Ultra+30k" class="product-img">
-        <h3>Ultra 30,000</h3>
-        <div class="price-tag">19 000 ₸</div>
-        <button class="action-button" onclick="toggleFlavors('waka30')">ВЫБРАТЬ ВКУС</button>
-        <div class="flavor-list" id="list-waka30">
-            <div class="flavor-item" onclick="addToCart('Vaka 30k', 19000, 'Черника')">🫐 Черника</div>
-            <div class="flavor-item" onclick="addToCart('Vaka 30k', 19000, 'Энергетик')">🔋 Энергетик</div>
+    <div class="cart-status" id="cart-panel">
+        <div class="cart-info">
+            <span id="cart-count">0</span> тов. | <span id="cart-total">0</span> ₸
         </div>
-    </div>
-
-    <div class="cart-footer" id="cart-panel">
-        <div class="cart-info">🛒 <span id="cart-count">0</span> товаров | <span id="cart-total">0</span> ₸</div>
-        <button class="checkout-btn" onclick="sendOrder()">ЗАКАЗАТЬ</button>
+        <button class="btn-order" onclick="sendOrder()">Оформить</button>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.MainButton.hide();
+
+        // Данные товаров (можешь менять картинки и цены тут)
+        const products = [
+            { id: 1, name: "Waka SoPro 10000 - Киви", price: 6500, img: "https://via.placeholder.com/150" },
+            { id: 2, name: "Waka SoPro 10000 - Арбуз", price: 6500, img: "https://via.placeholder.com/150" },
+            { id: 3, name: "Waka 20000 - Малина", price: 8500, img: "https://via.placeholder.com/150" },
+            { id: 4, name: "Waka 20000 - Мята", price: 8500, img: "https://via.placeholder.com/150" },
+        ];
 
         let cart = [];
 
-        function toggleFlavors(id) {
-            const list = document.getElementById('list-' + id);
-            list.style.display = list.style.display === 'flex' ? 'none' : 'flex';
+        function renderProducts() {
+            const grid = document.getElementById('items-grid');
+            products.forEach(p => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = `
+                    <img src="${p.img}" alt="${p.name}">
+                    <div class="item-name">${p.name}</div>
+                    <div class="item-price">${p.price} ₸</div>
+                    <button class="btn-add" onclick="addToCart(${p.id})">Добавить</button>
+                `;
+                grid.appendChild(card);
+            });
         }
 
-        function addToCart(model, price, flavor) {
-            cart.push({ model, price, flavor });
-            tg.HapticFeedback.notificationOccurred('success');
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            cart.push(product);
             updateCartUI();
+            
+            // Легкая вибрация при добавлении (только в мобильном приложении)
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
         }
 
         function updateCartUI() {
             const panel = document.getElementById('cart-panel');
-            const countEl = document.getElementById('cart-count');
-            const totalEl = document.getElementById('cart-total');
-
+            const total = cart.reduce((sum, p) => sum + p.price, 0);
+            
             if (cart.length > 0) {
-                panel.classList.add('show-cart');
-                countEl.innerText = cart.length;
-                const total = cart.reduce((sum, item) => sum + item.price, 0);
-                totalEl.innerText = total.toLocaleString();
+                panel.classList.add('active');
+                document.getElementById('cart-count').innerText = cart.length;
+                document.getElementById('cart-total').innerText = total;
             }
         }
 
         function sendOrder() {
             if (cart.length === 0) return;
             
-            // Формируем список товаров для бота
-            const itemsSummary = cart.map(i => `${i.model} (${i.flavor})`).join(', ');
-            const totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-
-            const data = {
+            const total = cart.reduce((sum, p) => sum + p.price, 0);
+            const itemsSummary = cart.map(p => p.name).join(", ");
+            
+            const orderData = {
                 item: itemsSummary,
-                price: totalPrice,
-                is_multi: true // Флаг, что это корзина
+                price: total
             };
 
-            tg.sendData(JSON.stringify(data));
-            tg.close();
+            tg.sendData(JSON.stringify(orderData));
         }
+
+        renderProducts();
     </script>
 </body>
 </html>
-
