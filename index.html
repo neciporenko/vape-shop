@@ -3,100 +3,167 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>WAKA VIP SHOP</title>
+    <title>WAKA LUXE SHOP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-purple: #9d50bb;
-            --accent-glow: #6e48aa;
-            --bg-dark: #0a0a0c;
-            --glass: rgba(255, 255, 255, 0.08);
+            --accent: #bc4efc;
+            --accent-dark: #6e2fb5;
+            --bg: #050507;
+            --card-bg: rgba(20, 20, 25, 0.7);
+            --text-main: #ffffff;
+            --text-dim: #a0a0a5;
         }
 
         body {
-            background: var(--bg-dark);
-            color: white;
-            font-family: 'Montserrat', sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
             margin: 0;
-            padding-top: 80px;
-            padding-bottom: 100px;
+            padding-top: 90px;
+            padding-bottom: 110px;
             overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Анимированный фон со свечением */
+        body::before {
+            content: '';
+            position: fixed; top: -10%; left: -10%; width: 120%; height: 120%;
+            background: radial-gradient(circle at 50% 50%, #1a0b2e 0%, #050507 70%);
+            z-index: -2;
         }
 
         #snow {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 100;
+            pointer-events: none; z-index: 1;
         }
 
+        /* Навигация (Header) */
         .header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
-            background: rgba(10, 10, 12, 0.9);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(157, 80, 187, 0.4);
-            padding: 15px 0;
+            background: rgba(5, 5, 7, 0.85);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(188, 78, 252, 0.2);
+            padding: 20px 0;
         }
 
         .nav-tabs {
-            display: flex; justify-content: center; gap: 10px; padding: 0 10px;
+            display: flex; justify-content: center; gap: 12px;
         }
 
         .tab {
-            padding: 8px 20px; border-radius: 25px; font-size: 12px;
-            cursor: pointer; transition: 0.4s; border: 1px solid rgba(255,255,255,0.1);
-            color: #ccc; font-weight: bold; text-transform: uppercase;
+            padding: 10px 22px; border-radius: 14px; font-size: 10px;
+            font-family: 'Syncopate', sans-serif; font-weight: 700;
+            cursor: pointer; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px;
         }
 
         .tab.active {
-            background: var(--primary-purple); color: white;
-            box-shadow: 0 0 20px var(--primary-purple);
-            border-color: transparent;
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            color: white; border: none;
+            box-shadow: 0 0 25px rgba(188, 78, 252, 0.5);
+            transform: translateY(-2px);
         }
 
-        .container { padding: 15px; display: flex; flex-direction: column; gap: 15px; }
+        /* Сетка товаров */
+        .container { padding: 0 20px; display: flex; flex-direction: column; gap: 18px; position: relative; z-index: 2; }
 
         .model-card {
-            background: var(--glass);
-            border-radius: 25px; border: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 18px; position: relative; transition: 0.3s;
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 22px;
+            position: relative;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        .model-card.hidden { display: none; }
+        .model-card::after {
+            content: ''; position: absolute; inset: -1px; border-radius: 24px;
+            padding: 1px; background: linear-gradient(45deg, transparent, rgba(188, 78, 252, 0.3), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            pointer-events: none;
+        }
 
-        .model-info { display: flex; align-items: center; gap: 20px; }
-        .model-info img { width: 70px; height: auto; filter: drop-shadow(0 0 15px var(--primary-purple)); }
+        .model-card.open {
+            border-color: var(--accent);
+            box-shadow: 0 0 40px rgba(188, 78, 252, 0.15);
+        }
 
+        .model-info { display: flex; justify-content: space-between; align-items: center; }
+
+        .model-info h3 { 
+            margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, #a0a0a5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .price-badge {
+            background: rgba(188, 78, 252, 0.15); color: var(--accent);
+            padding: 6px 14px; border-radius: 12px; font-weight: 800; font-size: 15px;
+            border: 1px solid rgba(188, 78, 252, 0.3);
+        }
+
+        /* Вкусы */
         .flavors {
-            max-height: 0; overflow: hidden; transition: max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+            max-height: 0; overflow: hidden; 
+            transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+            display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
         }
 
-        .model-card.open .flavors { max-height: 500px; margin-top: 20px; }
+        .model-card.open .flavors { max-height: 600px; margin-top: 25px; }
 
         .flavor-btn {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.1);
-            color: white; padding: 12px; border-radius: 15px; font-size: 11px;
-            text-align: center; transition: 0.2s; font-weight: 500;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            color: #efefef; padding: 14px; border-radius: 16px; font-size: 11px;
+            text-align: center; transition: all 0.2s; font-weight: 500;
         }
 
-        .flavor-btn:active { background: var(--primary-purple); transform: scale(0.92); }
-
-        .cart-icon {
-            position: fixed; right: 20px; bottom: 30px;
-            background: var(--primary-purple); width: 65px; height: 65px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 30px var(--primary-purple); z-index: 1001;
-            font-size: 26px; border: 2px solid rgba(255,255,255,0.2);
+        .flavor-btn:active {
+            background: var(--accent); color: white;
+            transform: scale(0.94); box-shadow: 0 0 20px var(--accent);
         }
 
-        .flying-item {
+        /* Корзина будущего */
+        .cart-float {
+            position: fixed; right: 25px; bottom: 35px; z-index: 1001;
+            transform: scale(1); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .cart-float:active { transform: scale(0.9); }
+
+        .cart-circle {
+            background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+            width: 68px; height: 68px; border-radius: 24px;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 15px 35px rgba(188, 78, 252, 0.4);
+            font-size: 28px; border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #cart-count {
+            position: absolute; top: -8px; right: -8px;
+            background: white; color: black; font-size: 11px; font-weight: 900;
+            width: 24px; height: 24px; border-radius: 10px;
+            display: none; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .new-year-icon { position: absolute; top: -12px; left: -10px; font-size: 24px; filter: drop-shadow(0 0 5px gold); }
+
+        /* Эффект полета */
+        .fly-particle {
             position: fixed; z-index: 9999; pointer-events: none;
-            width: 20px; height: 20px; background: #fff;
-            border-radius: 50%; box-shadow: 0 0 10px var(--primary-purple);
+            width: 12px; height: 12px; background: var(--accent);
+            border-radius: 4px; box-shadow: 0 0 15px var(--accent);
             transition: all 0.7s cubic-bezier(0.6, -0.28, 0.735, 0.045);
         }
-
-        .new-year-decor { position: absolute; top: -5px; right: -5px; font-size: 22px; }
     </style>
 </head>
 <body>
@@ -105,62 +172,55 @@
 
 <div class="header">
     <div class="nav-tabs">
-        <div class="tab active" data-filter="all">Все</div>
-        <div class="tab" data-filter="pods">Одноразки</div>
-        <div class="tab" data-filter="liquids">Жидкости</div>
+        <div class="tab active" data-filter="all">ALL</div>
+        <div class="tab" data-filter="pods">WAKA</div>
+        <div class="tab" data-filter="liquids">JUICE</div>
     </div>
 </div>
 
 <div class="container">
     <div class="model-card" data-type="pods" onclick="toggleCard(this)">
-        <div class="new-year-decor">🎁</div>
+        <div class="new-year-icon">⭐</div>
         <div class="model-info">
-            <img src="https://neciporenko.github.io/vape-shop/waka10.png">
-            <div>
-                <h3 style="margin:0">Waka PA10000</h3>
-                <span style="color:var(--primary-purple)">5500 ₸</span>
-            </div>
+            <h3>WAKA MIRROR 10K</h3>
+            <div class="price-badge">5500 ₸</div>
         </div>
         <div class="flavors">
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Вишня', 5500, event)">🍒 Вишня</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Арбуз', 5500, event)">🍉 Арбуз</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Кактус', 5500, event)">🌵 Кактус</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 10k: Манго', 5500, event)">🥭 Манго</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Ice Grape', 5500, event)">🍇 ICE GRAPE</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Mango', 5500, event)">🥭 MANGO</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Cherry', 5500, event)">🍒 CHERRY</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 10k: Cactus', 5500, event)">🌵 CACTUS</div>
         </div>
     </div>
 
     <div class="model-card" data-type="pods" onclick="toggleCard(this)">
-        <div class="new-year-decor">❄️</div>
         <div class="model-info">
-            <img src="https://neciporenko.github.io/vape-shop/waka7.png">
-            <div>
-                <h3 style="margin:0">Waka SoPro 7000</h3>
-                <span style="color:var(--primary-purple)">4000 ₸</span>
-            </div>
+            <h3>WAKA SOPRO 7K</h3>
+            <div class="price-badge">4000 ₸</div>
         </div>
         <div class="flavors">
-            <div class="flavor-btn" onclick="addToCart('Waka 7k: Черника', 4000, event)">🫐 Черника</div>
-            <div class="flavor-btn" onclick="addToCart('Waka 7k: Виноград', 4000, event)">🍇 Виноград</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 7k: Blueberry', 4000, event)">🫐 BLUEBERRY</div>
+            <div class="flavor-btn" onclick="addToCart('Waka 7k: Mint', 4000, event)">🌿 MINT</div>
         </div>
     </div>
 
     <div class="model-card" data-type="liquids" onclick="toggleCard(this)">
-        <div class="new-year-decor">🎄</div>
+        <div class="new-year-icon">🎄</div>
         <div class="model-info">
-            <img src="https://neciporenko.github.io/vape-shop/husky.png">
-            <div>
-                <h3 style="margin:0">Husky Double Ice</h3>
-                <span style="color:var(--primary-purple)">2500 ₸</span>
-            </div>
+            <h3>HUSKY DOUBLE ICE</h3>
+            <div class="price-badge">2500 ₸</div>
         </div>
         <div class="flavors">
-            <div class="flavor-btn" onclick="addToCart('Husky: Киви', 2500, event)">🥝 Киви</div>
-            <div class="flavor-btn" onclick="addToCart('Husky: Лед', 2500, event)">🧊 Лед</div>
+            <div class="flavor-btn" onclick="addToCart('Husky: Kiwi', 2500, event)">🥝 KIWI</div>
+            <div class="flavor-btn" onclick="addToCart('Husky: Watermelon', 2500, event)">🍉 BOMB</div>
         </div>
     </div>
 </div>
 
-<div class="cart-icon" id="cart" onclick="tg.MainButton.show()">🛒</div>
+<div class="cart-float" onclick="if(cart.length>0) tg.MainButton.show()">
+    <div class="cart-circle">🛒</div>
+    <div id="cart-count">0</div>
+</div>
 
 <script>
     let tg = window.Telegram.WebApp;
@@ -168,7 +228,7 @@
     
     let cart = [];
 
-    // Фильтрация
+    // Плавная фильтрация
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelector('.tab.active').classList.remove('active');
@@ -177,100 +237,106 @@
             
             document.querySelectorAll('.model-card').forEach(card => {
                 if (filter === 'all' || card.getAttribute('data-type') === filter) {
-                    card.classList.remove('hidden');
+                    card.style.display = 'block';
+                    setTimeout(() => card.style.opacity = '1', 10);
                 } else {
-                    card.classList.add('hidden');
+                    card.style.opacity = '0';
+                    setTimeout(() => card.style.display = 'none', 300);
                 }
             });
+            tg.HapticFeedback.selectionChanged();
         });
     });
 
     function toggleCard(card) {
-        if (!card.classList.contains('open')) {
-            document.querySelectorAll('.model-card.open').forEach(c => c.classList.remove('open'));
-        }
-        card.classList.toggle('open');
+        const isOpen = card.classList.contains('open');
+        document.querySelectorAll('.model-card.open').forEach(c => c.classList.remove('open'));
+        if (!isOpen) card.classList.add('open');
+        tg.HapticFeedback.impactOccurred('light');
     }
 
     function addToCart(name, price, event) {
         event.stopPropagation();
         cart.push({name, price});
         
-        // Полет
+        // Эффект полета частицы
         const fly = document.createElement('div');
-        fly.className = 'flying-item';
+        fly.className = 'fly-particle';
         fly.style.left = event.clientX + 'px';
         fly.style.top = event.clientY + 'px';
         document.body.appendChild(fly);
 
-        const cartPos = document.getElementById('cart').getBoundingClientRect();
+        const cartRect = document.querySelector('.cart-circle').getBoundingClientRect();
         
         setTimeout(() => {
-            fly.style.left = cartPos.left + 20 + 'px';
-            fly.style.top = cartPos.top + 20 + 'px';
+            fly.style.left = cartRect.left + 25 + 'px';
+            fly.style.top = cartRect.top + 25 + 'px';
+            fly.style.transform = 'scale(0.5) rotate(360deg)';
             fly.style.opacity = '0';
         }, 50);
 
-        setTimeout(() => fly.remove(), 700);
+        setTimeout(() => {
+            fly.remove();
+            updateUI();
+        }, 750);
+
         tg.HapticFeedback.notificationOccurred('success');
-        updateMainButton();
     }
 
-    function updateMainButton() {
+    function updateUI() {
+        const badge = document.getElementById('cart-count');
         if (cart.length > 0) {
+            badge.innerText = cart.length;
+            badge.style.display = 'flex';
+            
             let total = cart.reduce((sum, item) => sum + item.price, 0);
             tg.MainButton.setParams({
-                text: `ОФОРМИТЬ ЗАКАЗ (${total} ₸)`,
-                color: "#9d50bb",
+                text: `OФОРМИТЬ ЗАКАЗ (${total} ₸)`,
+                color: "#bc4efc",
                 is_visible: true
             });
         }
     }
 
     tg.MainButton.onClick(() => {
-        // Формируем красивый текст для бота
-        let itemsList = cart.map(i => i.name).join(", ");
-        let totalPrice = cart.reduce((sum, item) => sum + item.price, 0);
-        
-        tg.sendData(JSON.stringify({
-            item: itemsList, // Бот увидит это как "data.get('item')"
-            price: totalPrice
-        }));
+        let res = cart.map(i => i.name).join(", ");
+        let total = cart.reduce((sum, i) => sum + i.price, 0);
+        tg.sendData(JSON.stringify({ item: res, price: total }));
     });
 
-    // МЕДЛЕННЫЙ СНЕГ
+    // ХУДОЖЕСТВЕННЫЙ СНЕГ
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
-    let width = canvas.width = window.innerWidth;
-    let height = canvas.height = window.innerHeight;
-    const flakes = [];
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    let flakes = [];
 
-    function createFlakes() {
-        for (let i = 0; i < 80; i++) {
-            flakes.push({ 
-                x: Math.random() * width, 
-                y: Math.random() * height, 
-                r: Math.random() * 2 + 0.5, 
-                d: Math.random() * 0.3 + 0.1 // Снижена скорость падения
+    function initSnow() {
+        for(let i=0; i<60; i++) {
+            flakes.push({
+                x: Math.random()*w, y: Math.random()*h,
+                r: Math.random()*2 + 0.5, d: Math.random()*0.3 + 0.1,
+                a: Math.random()*Math.PI
             });
         }
     }
 
-    function drawFlakes() {
-        ctx.clearRect(0, 0, width, height);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+    function drawSnow() {
+        ctx.clearRect(0,0,w,h);
+        ctx.fillStyle = "rgba(255,255,255,0.3)";
         ctx.beginPath();
         flakes.forEach(f => {
             ctx.moveTo(f.x, f.y);
-            ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-            f.y += f.d; // Медленное движение вниз
-            f.x += Math.sin(f.y / 50) * 0.3; // Легкое покачивание
-            if (f.y > height) f.y = -10, f.x = Math.random() * width;
+            ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
+            f.y += f.d;
+            f.x += Math.sin(f.a) * 0.4;
+            f.a += 0.01;
+            if(f.y > h) f.y = -10, f.x = Math.random()*w;
         });
         ctx.fill();
-        requestAnimationFrame(drawFlakes);
+        requestAnimationFrame(drawSnow);
     }
-    createFlakes(); drawFlakes();
+    initSnow(); drawSnow();
 </script>
 </body>
 </html>
