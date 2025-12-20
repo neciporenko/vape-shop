@@ -7,18 +7,27 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
     <style>
+        /* =========================================
+           1. ПЕРЕМЕННЫЕ И НАСТРОЙКИ (МЕНЯЙ ТУТ)
+           ========================================= */
         :root {
             --accent: #bc4efc;
             --accent-dark: #6e2fb5;
             --bg: #050507;
-            --card-bg: rgba(20, 20, 25, 0.7);
+            --card-bg: rgba(20, 20, 25, 0.8);
             --text-main: #ffffff;
             --text-dim: #a0a0a5;
             --glow-new: #00f2ff;
             --glow-hit: #ff8c00;
+            
+            /* Настройки рамки */
+            --border-width: 1px;
+            --glow-speed: 4s; 
         }
 
-        /* Анимированный динамический фон (Gradient Mesh) */
+        /* =========================================
+           2. ОБЩИЕ СТИЛИ И ФОН
+           ========================================= */
         @keyframes mesh {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
@@ -38,12 +47,11 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        #snow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 1;
-        }
+        #snow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
 
-        /* Хедер */
+        /* =========================================
+           3. ШАПКА (HEADER)
+           ========================================= */
         .header {
             position: fixed; top: 0; width: 100%; z-index: 1000;
             background: rgba(5, 5, 7, 0.85);
@@ -57,7 +65,7 @@
         .tab {
             padding: 10px 22px; border-radius: 14px; font-size: 10px;
             font-family: 'Syncopate', sans-serif; font-weight: 700;
-            cursor: pointer; transition: all 0.4s ease;
+            cursor: pointer; transition: 0.4s ease;
             border: 1px solid rgba(255, 255, 255, 0.05);
             color: var(--text-dim); text-transform: uppercase;
         }
@@ -69,19 +77,67 @@
             transform: translateY(-2px);
         }
 
-        /* Контейнер и карточки */
-        .container { padding: 0 20px; display: flex; flex-direction: column; gap: 18px; z-index: 2; position: relative; }
+        /* =========================================
+           4. КАРТОЧКИ ТОВАРОВ И ЭФФЕКТЫ
+           ========================================= */
+        .container { padding: 0 20px; display: flex; flex-direction: column; gap: 25px; z-index: 2; position: relative; }
 
+        /* Основная карточка */
         .model-card {
             background: var(--card-bg);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(15px);
             border-radius: 24px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
             padding: 22px;
             position: relative;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             animation: cardAppear 0.6s ease backwards;
+            overflow: hidden; /* Скрывает вылет блика */
+        }
+
+        /* Эффект плавающей рамки (Border Glow) */
+        .model-card::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 24px;
+            padding: var(--border-width); /* Толщина рамки */
+            background: conic-gradient(from var(--angle), transparent 70%, var(--accent), var(--glow-new), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            animation: rotate-angle var(--glow-speed) linear infinite;
+            pointer-events: none;
+        }
+
+        @property --angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
+
+        @keyframes rotate-angle {
+            to { --angle: 360deg; }
+        }
+
+        /* Эффект блика (Shimmer) */
+        .model-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -150%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.05), transparent);
+            transform: skewX(-25deg);
+            pointer-events: none;
+            z-index: 3;
+            animation: shimmer 6s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -150%; }
+            20% { left: 150%; }
+            100% { left: 150%; }
         }
 
         @keyframes cardAppear {
@@ -89,9 +145,9 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .model-card.open { border-color: var(--accent); box-shadow: 0 0 40px rgba(188, 78, 252, 0.15); }
+        .model-card.open { border: 1px solid var(--accent); box-shadow: 0 0 40px rgba(188, 78, 252, 0.15); }
 
-        .model-info { display: flex; justify-content: space-between; align-items: center; }
+        .model-info { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 5; }
 
         .model-title { display: flex; align-items: center; gap: 10px; }
 
@@ -101,46 +157,40 @@
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        /* Светящиеся Теги */
-        .badge {
-            font-size: 8px; font-weight: 900; padding: 3px 8px; border-radius: 6px;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
+        /* Информационные плашки */
+        .badge { font-size: 8px; font-weight: 900; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
         .badge-new { background: var(--glow-new); color: #000; box-shadow: 0 0 12px var(--glow-new); }
         .badge-hit { background: var(--glow-hit); color: #000; box-shadow: 0 0 12px var(--glow-hit); }
 
         .price-badge {
-            background: rgba(188, 78, 252, 0.1); color: var(--accent);
+            background: rgba(188, 78, 252, 0.15); color: var(--accent);
             padding: 6px 14px; border-radius: 12px; font-weight: 800;
             border: 1px solid rgba(188, 78, 252, 0.2);
         }
 
-        /* Вкусы */
+        /* Секция выбора вкуса */
         .flavors {
             max-height: 0; overflow: hidden; 
             transition: max-height 0.8s cubic-bezier(0.19, 1, 0.22, 1);
             display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+            position: relative; z-index: 5;
         }
 
         .model-card.open .flavors { max-height: 600px; margin-top: 25px; }
 
         .flavor-btn {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             color: #efefef; padding: 14px; border-radius: 16px; font-size: 11px;
             text-align: center; transition: 0.2s; font-weight: 500;
         }
 
-        .flavor-btn:active {
-            background: var(--accent); color: white;
-            transform: scale(0.95); box-shadow: 0 0 20px var(--accent);
-        }
+        .flavor-btn:active { background: var(--accent); transform: scale(0.95); }
 
-        /* Корзина */
-        .cart-float {
-            position: fixed; right: 25px; bottom: 35px; z-index: 1001;
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
+        /* =========================================
+           5. КОРЗИНА И ИНТЕРФЕЙС
+           ========================================= */
+        .cart-float { position: fixed; right: 25px; bottom: 35px; z-index: 1001; }
 
         .cart-circle {
             background: linear-gradient(135deg, var(--accent), var(--accent-dark));
@@ -179,6 +229,7 @@
 </div>
 
 <div class="container">
+    
     <div class="model-card" data-type="pods" onclick="toggleCard(this)" style="animation-delay: 0.1s">
         <div class="model-info">
             <div class="model-title">
@@ -229,10 +280,9 @@
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
-    
     let cart = [];
 
-    // Плавная фильтрация с тактильным откликом
+    /* Фильтрация категорий */
     document.querySelectorAll('.tab').forEach(tab => {
         tab.addEventListener('click', () => {
             document.querySelector('.tab.active').classList.remove('active');
@@ -242,7 +292,6 @@
             document.querySelectorAll('.model-card').forEach(card => {
                 if (filter === 'all' || card.getAttribute('data-type') === filter) {
                     card.style.display = 'block';
-                    card.style.animation = 'cardAppear 0.4s ease forwards';
                 } else {
                     card.style.display = 'none';
                 }
@@ -251,6 +300,7 @@
         });
     });
 
+    /* Открытие/Закрытие вкусов */
     function toggleCard(card) {
         const isOpen = card.classList.contains('open');
         document.querySelectorAll('.model-card.open').forEach(c => c.classList.remove('open'));
@@ -258,11 +308,12 @@
         tg.HapticFeedback.impactOccurred('light');
     }
 
+    /* Добавление в корзину */
     function addToCart(name, price, event) {
         event.stopPropagation();
         cart.push({name, price});
         
-        // Полет частицы
+        // Анимация полета
         const fly = document.createElement('div');
         fly.className = 'fly-particle';
         fly.style.left = event.clientX + 'px';
@@ -278,36 +329,33 @@
             fly.style.opacity = '0';
         }, 50);
 
-        setTimeout(() => {
-            fly.remove();
-            updateUI();
-        }, 700);
-
+        setTimeout(() => { fly.remove(); updateUI(); }, 700);
         tg.HapticFeedback.notificationOccurred('success');
     }
 
+    /* Обновление интерфейса корзины */
     function updateUI() {
         const badge = document.getElementById('cart-count');
         if (cart.length > 0) {
             badge.innerText = cart.length;
             badge.style.display = 'flex';
-            
             let total = cart.reduce((sum, item) => sum + item.price, 0);
             tg.MainButton.setParams({
-                text: `КУПИТЬ ТОВАРЫ (${total} ₸)`,
+                text: `ОФОРМИТЬ (${total} ₸)`,
                 color: "#bc4efc",
                 is_visible: true
             });
         }
     }
 
+    /* Отправка данных боту */
     tg.MainButton.onClick(() => {
         let res = cart.map(i => i.name).join(", ");
         let total = cart.reduce((sum, i) => sum + i.price, 0);
         tg.sendData(JSON.stringify({ item: res, price: total }));
     });
 
-    // Плавный снег
+    /* Фон со снегом */
     const canvas = document.getElementById('snow');
     const ctx = canvas.getContext('2d');
     let w = canvas.width = window.innerWidth;
@@ -316,7 +364,7 @@
 
     function initSnow() {
         flakes = [];
-        for(let i=0; i<50; i++) {
+        for(let i=0; i<40; i++) {
             flakes.push({
                 x: Math.random()*w, y: Math.random()*h,
                 r: Math.random()*2 + 1, d: Math.random()*0.3 + 0.1,
@@ -332,16 +380,13 @@
         flakes.forEach(f => {
             ctx.moveTo(f.x, f.y);
             ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
-            f.y += f.d;
-            f.x += Math.sin(f.a) * 0.3;
-            f.a += 0.01;
+            f.y += f.d; f.x += Math.sin(f.a) * 0.3; f.a += 0.01;
             if(f.y > h) f.y = -10, f.x = Math.random()*w;
         });
         ctx.fill();
         requestAnimationFrame(drawSnow);
     }
     initSnow(); drawSnow();
-    window.addEventListener('resize', initSnow);
 </script>
 </body>
 </html>
